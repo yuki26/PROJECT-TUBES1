@@ -1,352 +1,159 @@
-
-<?php 
-
-
-
-02 
-$sUrl = 'http://news.google.com/news/section?pz=1&cf=all&topic=t&ict=ln'; 
-
-
-
-03 
-$sUrlSrc = getWebsiteContent($sUrl); 
-
-
-
-04 
-  
-
-
-
-05 
-// Load the source 
-
-
-
-06 
-$dom = new DOMDocument(); 
-
-
-
-07 
-@$dom->loadHTML($sUrlSrc); 
-
-
-
-08 
-  
-
-
-
-09 
-$xpath = new DomXPath($dom); 
-
-
-
-10 
-  
-
-
-
-11 
-// step 1 - links: 
-
-
-
-12 
-$aLinks = array(); 
-
-
-
-13 
-$vRes = $xpath->query(".//*[@id='top-stories']/div/h2/a[1]"); 
-
-
-
-14 
-foreach ($vRes as $obj) { 
-
-
-
-15 
-    $aLinks[] = $obj->getAttribute('href'); 
-
-
-
-16 
-} 
-
-
-
-17 
-  
-
-
-
-18 
-// step 2 - titles: 
-
-
-
-19 
-$aTitles = array(); 
-
-
-
-20 
-$vRes = $xpath->query(".//*[@id='top-stories']/div/h2/a[1]/span"); 
-
-
-
-21 
-foreach ($vRes as $obj) { 
-
-
-
-22 
-    $aTitles[] = $obj->nodeValue; 
-
-
-
-23 
-} 
-
-
-
-24 
-  
-
-
-
-25 
-// step 3 - descriptions: 
-
-
-
-26 
-$aDescriptions = array(); 
-
-
-
-27 
-$vRes = $xpath->query(".//*[@id='top-stories']/div/div[@class='body']/div[1]"); 
-
-
-
-28 
-foreach ($vRes as $obj) { 
-
-
-
-29 
-    $aDescriptions[] = $obj->nodeValue; 
-
-
-
-30 
-} 
-
-
-
-31 
-  
-
-
-
-32 
-echo '<link href="css/styles.css" type="text/css" rel="stylesheet"/><div class="main">'; 
-
-
-
-33 
-echo '<h1>Using xpath for dom html</h1>'; 
-
-
-
-34 
-  
-
-
-
-35 
-$entries = $xpath->evaluate('.//*[@id="headline-wrapper"]/div[1]/div/h2/span'); 
-
-
-
-36 
-echo '<h1>' . $entries->item(0)->nodeValue . ' google news</h1>'; 
-
-
-
-37 
-  
-
-
-
-38 
-$i = 0; 
-
-
-
-39 
-foreach ($aLinks as $sLink) { 
-
-
-
-40 
-    echo <<<EOF 
-
-
-
-41 
-<div class="unit"> 
-
-
-
-42 
-    <a href="{$sLink}">{$aTitles[$i]}</a> 
-
-
-
-43 
-    <div>{$aDescriptions[$i]}</div> 
-
-
-
-44 
-</div> 
-
-
-
-45 
-EOF; 
-
-
-
-46 
-    $i++; 
-
-
-
-47 
-} 
-
-
-
-48 
-echo '</div>'; 
-
-
-
-49 
-  
-
-
-
-50 
-// this function will return page content using caches (we will load original sources not more than once per hour) 
-
-
-
-51 
-function getWebsiteContent($sUrl) { 
-
-
-
-52 
-    // our folder with cache files 
-
-
-
-53 
-    $sCacheFolder = 'cache/'; 
-
-
-
-54 
-  
-
-
-
-55 
-    // cache filename 
-
-
-
-56 
-    $sFilename = date('YmdH').'.html'; 
-
-
-
-57 
-  
-
-
-
-58 
-    if (! file_exists($sCacheFolder.$sFilename)) { 
-
-
-
-59 
-        $ch = curl_init($sUrl); 
-
-
-
-60 
-        $fp = fopen($sCacheFolder.$sFilename, 'w'); 
-
-
-
-61 
-        curl_setopt($ch, CURLOPT_FILE, $fp); 
-
-
-
-62 
-        curl_setopt($ch, CURLOPT_HEADER, 0); 
-
-
-
-63 
-        curl_setopt($ch, CURLOPT_HTTPHEADER, Array('User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.15) Gecko/20080623 Firefox/2.0.0.15')); 
-
-
-
-64 
-        curl_exec($ch); 
-
-
-
-65 
-        curl_close($ch); 
-
-
-
-66 
-        fclose($fp); 
-
-
-
-67 
-    } 
-
-
-
-68 
-    return file_get_contents($sCacheFolder.$sFilename); 
-
-
-
-69 
-} 
-
-
-
-70 
-  
-
-
-
-71 
-?> 
+<?php
+$fh = fopen("youtubescrapefix.txt", "r");
+
+while(!feof($fh)){
+	$current = trim(fgets($fh));
+	$iArray[] = explode("*", $current);
+}
+$count = count($iArray);
+for($x=$count-2; $x<$count; $x++){
+	$newArray[$x]["imageSrc"] = $iArray[$x][0];
+	$newArray[$x]["title"] = $iArray[$x][1];
+	$newArray[$x]["link"] = $iArray[$x][2];
+	$newArray[$x]["owner"] = $iArray[$x][3];
+	$newArray[$x]["ownerLink"] = $iArray[$x][4];
+	$newArray[$x]["duration"] = $iArray[$x][5];
+
+}
+?>
+
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="ie ie6" lang="en"> <![endif]-->
+<!--[if IE 7 ]><html class="ie ie7" lang="en"> <![endif]-->
+<!--[if IE 8 ]><html class="ie ie8" lang="en"> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--><html lang="en"> <!--<![endif]-->
+<head>
+	<meta charset="utf-8">
+	<title>XML Responsive Web Design</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<link rel="stylesheet" href="stylesheets/base.css">
+	<link rel="stylesheet" href="stylesheets/skeleton.css">
+	<link rel="stylesheet" href="stylesheets/layout.css">
+	<link rel="stylesheet" href="stylesheets/style.css">
+</head>
+<body>
+	<div class="container">
+	    <div class="sixteen columns header">
+	        <h1>XML Responsive Web Design</h1>
+	    </div>
+	    
+	    <div class="sixteen columns navigation">
+	        <ul>
+	            <li><a href="javascript:void(0);" class="active">Home</a></li>
+	            <li><a href="javascript:void(0);">About Us</a></li>
+	            <li><a href="javascript:void(0);">Blog</a></li>
+	            <li><a href="javascript:void(0);">Contact Us</a></li>
+	        </ul>
+	    </div>
+	</div>
+	
+	<div class="container">
+	    <div class="sixteen columns banner">
+	        <div style="color:white;
+				border:0px solid #a1a1a1;
+				padding:10px 40px; 
+				background:#7FFF00;
+				width:auto;
+				border-radius:10px;
+				margin:3px 0px 0px 0px;"><h1>Test Drive</h1>
+			</div>
+	    </div>
+	</div>
+	
+	<div class="container mid-content">
+	    <div class="one-third column">
+	        <h1>Web Services</h1>
+	        <p align=justify>
+			<?php
+				$output = '';
+				foreach($newArray as $new){
+					/*echo '<div class="video">';
+					echo '<img src ="' .$new['imageSrc'] . '" alt="youtube image">';
+					echo '<a href="' . $new['link'] . '"><h4>' . $new['title'] . '</h4></a>';*/
+
+				echo '<table border="0" cellpadding="1" cellspacing="2">';
+				echo '<tr class="row">';
+				echo '<td><img src="' .$new['imageSrc']. '" alt="Youtube image"></td>';
+				echo '<td class="col"><a href="' .$new['link']. '"><h5>' .$new['title']. '</h5></a></td>';
+				echo '<td class="dur">' .$new['duration']. '</td>';
+				echo '</tr>';
+				echo '</table>';
+				}
+			?>
+			</p>
+	    </div>
+	    <div class="one-third column">
+	        <h1>Web Services</h1>
+	        <p align=justify>
+			<?php
+				$output = '';
+				foreach($newArray as $new){
+					/*echo '<div class="video">';
+					echo '<img src ="' .$new['imageSrc'] . '" alt="youtube image">';
+					echo '<a href="' . $new['link'] . '"><h4>' . $new['title'] . '</h4></a>';*/
+
+				echo '<table border="0" cellpadding="1" cellspacing="2">';
+				echo '<tr class="row">';
+				echo '<td><img src="' .$new['imageSrc']. '" alt="Youtube image"></td>';
+				echo '<td class="col"><a href="' .$new['link']. '"><h5>' .$new['title']. '</h5></a></td>';
+				echo '<td class="dur">' .$new['duration']. '</td>';
+				echo '</tr>';
+				echo '</table>';
+				}
+			?>
+			</p>
+	    </div>
+	    <div class="one-third column">
+	        <h1>Web Services</h1>
+	        <p align=justify>
+			<?php
+				$output = '';
+				foreach($newArray as $new){
+					/*echo '<div class="video">';
+					echo '<img src ="' .$new['imageSrc'] . '" alt="youtube image">';
+					echo '<a href="' . $new['link'] . '"><h4>' . $new['title'] . '</h4></a>';*/
+
+				echo '<table border="0" cellpadding="1" cellspacing="2">';
+				echo '<tr class="row">';
+				echo '<td><img src="' .$new['imageSrc']. '" alt="Youtube image"></td>';
+				echo '<td class="col"><a href="' .$new['link']. '"><h5>' .$new['title']. '</h5></a></td>';
+				echo '<td class="dur">' .$new['duration']. '</td>';
+				echo '</tr>';
+				echo '</table>';
+				}
+			?>
+			</p>
+	    </div>
+	</div>
+	
+	<div class="container blog-feed">
+	    <div class="sixteen columns">
+	        <h1>Otobiografi</h1>
+	        <p align=justify>
+			<?php
+				$output = '';
+				foreach($newArray as $new){
+					/*echo '<div class="video">';
+					echo '<img src ="' .$new['imageSrc'] . '" alt="youtube image">';
+					echo '<a href="' . $new['link'] . '"><h4>' . $new['title'] . '</h4></a>';*/
+
+				echo '<table border="0" cellpadding="1" cellspacing="2">';
+				echo '<tr class="row">';
+				echo '<td><img src="' .$new['imageSrc']. '" alt="Youtube image"></td>';
+				echo '<td class="col"><a href="' .$new['link']. '"><h5>' .$new['title']. '</h5></a></td>';
+				echo '<td class="dur">' .$new['duration']. '</td>';
+				echo '</tr>';
+				echo '</table>';
+				}
+			?>
+			</p>
+	    </div>
+	</div>
+	
+	<div class="container footer">
+	    <div class="sixteen columns">
+	        Copyright 2014 &copy; m2skyline
+	    </div>
+	</div>
+</body>
+</html>
