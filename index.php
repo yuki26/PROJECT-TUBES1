@@ -49,14 +49,7 @@ for($x=$count-2; $x<$count; $x++){
 	
 	<div class="container">
 	    <div class="sixteen columns banner">
-	        <div style="color:white;
-				border:0px solid #a1a1a1;
-				padding:10px 40px; 
-				background:#7FFF00;
-				width:auto;
-				border-radius:10px;
-				margin:3px 0px 0px 0px;"><h1>Test Drive</h1>
-			</div>
+	        <img src="images/banner.png" />
 	    </div>
 	</div>
 	
